@@ -9,7 +9,17 @@ package edu.uw.complexkotlin
 // the final string should look like FIZZBUZZFIZZFIZZBUZZFIZZFIZZBUZZ for 0..15.
 // store this lambda into 'fizzbuzz' so that the tests can call it
 //
-val fizzbuzz : (IntRange) -> String = { _ -> "" }
+
+val fizzbuzz: (IntRange) -> String = { numbers: IntRange ->
+    numbers.map { num: Int ->
+        when {
+            num % 3 == 0 && num % 5 == 0 -> "FIZZBUZZ"
+            num % 3 == 0 -> "FIZZ"
+            num % 5 == 0 -> "BUZZ"
+            else -> ""
+        }
+    }.fold("") { acc, elem -> acc + elem }
+}
 
 // Example usage
 /*
@@ -30,28 +40,49 @@ fun Int.times(block: () -> Unit): Unit {
 }
 
 // Use this function
-fun process(message: String, block: (String) -> String): String {
+fun process(message: String, block: (String) -> Unit): String {
     return ">>> ${message}: {" + block(message) + "}"
 }
-// Create r1 as a lambda that calls process() with message "FOO" 
+// Create r1 as a lambda that calls process() with message "FOO"
 // and a block that returns "BAR"
-val r1 = { "" }
+val r1: () -> String = { process("FOO") { "BAR" } }
 
-// Create r2 as a lambda that calls process() with message "FOO" 
-// and a block that upper-cases r2_message, and repeats it three 
+// Create r2 as a lambda that calls process() with message "FOO"
+// and a block that upper-cases r2_message, and repeats it three
 // times with no spaces: "WOOGAWOOGAWOOGA"
 val r2_message = "wooga"
-val r2 = { "" }
-
+val r2: () -> String = {
+    process("FOO") {
+        var result = ""
+        repeat(3) {
+            result += r2_message.toUpperCase()
+        }
+        result
+    }
+}
 
 // write an enum-based state machine between talking and thinking
-enum class Philosopher { }
+enum class Philosopher {
+    THINKING {
+        override fun signal() = TALKING
+        override fun toString() = "Deep thoughts...."
+    },
+    TALKING {
+        override fun signal() = THINKING
+        override fun toString() = "Allow me to suggest an idea..."
+    };
+    abstract fun signal(): Philosopher
+}
 
-// create an class "Command" that can be used as a function 
+// create a class "Command" that can be used as a function
 // (provide an "invoke()" function)
 // that takes a single parameter ("message" of type String)
 // primary constructor should take a String argument ("prompt")
 // when invoked, the Command object should return a String c
-// ontaining the prompt and then the message.
+// containing the prompt and then the message.
 // Example: Command(": ")("Hello!") should print ": Hello!"
-class Command(val prompt: String) { }
+class Command(val prompt: String) {
+    operator fun invoke(message: String): String {
+        return prompt + message
+    }
+}
