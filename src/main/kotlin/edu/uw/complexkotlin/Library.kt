@@ -40,7 +40,7 @@ fun Int.times(block: () -> Unit): Unit {
 }
 
 // Use this function
-fun process(message: String, block: (String) -> Unit): String {
+fun process(message: String, block: (String) -> String): String {
     return ">>> ${message}: {" + block(message) + "}"
 }
 // Create r1 as a lambda that calls process() with message "FOO"
